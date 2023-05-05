@@ -1,6 +1,8 @@
 # ref https://www.codeunderscored.com/upload-download-files-flask/
 
 import os
+from os import listdir
+from os.path import isfile, join
 from flask import Flask, render_template, request, send_file
 from werkzeug.utils import secure_filename
 
@@ -46,6 +48,10 @@ def uploadfile():
     return 'file uploaded successfully'  # Display thsi message after uploading
 
 
+def get_metadata(filename: str):
+    ''' return standard metadata from a filename '''
+    return
+
 @app.route('/download', methods=['GET', 'POST'])
 def download():
     ''' allow user download a file specify with `name` url parameter. Return sample.txt if no parameter. '''
@@ -53,6 +59,20 @@ def download():
     if not filename_to_reqest or filename_to_reqest == '':
         filename_to_reqest = 'sample.txt'
     return send_file(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", as_attachment=True)
+
+@app.route('/list_local', methods=['GET'])
+def list_local():
+    ''' list all file metadata in local storage folder (cache of S3) '''
+    script_path = os.path.dirname(os.path.abspath(__file__))    # locate the server.py path
+    cache_path = join(script_path, app.config['UPLOAD_FOLDER']) # locate the configed upload folder
+    onlyfiles = [f for f in listdir(cache_path) if isfile(join(cache_path, f))] # get file names
+    print(cache_path ,onlyfiles)
+    return {'files': onlyfiles}
+
+@app.route('/list', methods=['GET'])
+def list():
+    ''' list all file metadata in remote S3 database. '''
+    return {'files': []}
 
 
 if __name__ == '__main__':

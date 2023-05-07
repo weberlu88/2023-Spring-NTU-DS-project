@@ -4,10 +4,12 @@ import os
 from os import listdir
 from os.path import isfile, join
 from flask import Flask, render_template, request, send_file
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 # initialising the flask app
 app = Flask(__name__)
+CORS(app)
 
 # Creating the upload folder
 upload_folder = "uploads/"
@@ -69,7 +71,7 @@ def get_metadata(filename: str):
         "year": year,
         "department": department,
         "title": title,
-        "fileurl": filename, # url 先這樣
+        "fileurl": f"http://127.0.0.1:5000/download?name={filename}", # url 先這樣
     }
     return format
 

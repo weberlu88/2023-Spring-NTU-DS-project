@@ -50,7 +50,34 @@ def uploadfile():
 
 def get_metadata(filename: str):
     ''' return standard metadata from a filename '''
-    return
+    year, department, title = 110, None, None
+    try:
+        fields = filename.split('-')
+        year = int(fields[0])
+    except:
+        year = 110
+    try:
+        fields = filename.split('-')
+        department = fields[1]
+    except:
+        department = None
+    try:
+        title = fields[2]
+    except:
+        title = filename
+    format = {
+        "year": year,
+        "department": department,
+        "title": title,
+        "fileurl": filename, # url 先這樣
+    }
+    return format
+
+# test script
+# res = get_metadata('sample.txt')
+# res = get_metadata('110-生科系-想了解生科系的一定要看.txt') 
+# # {'year': 110, 'department': '生科系', 'title': '想了解生科系的一定要看.txt', 'fileurl': '110-生科系-想了解生科系的一定要看.txt'}
+# print(res)
 
 @app.route('/download', methods=['GET', 'POST'])
 def download():
@@ -67,7 +94,7 @@ def list_local():
     cache_path = join(script_path, app.config['UPLOAD_FOLDER']) # locate the configed upload folder
     onlyfiles = [f for f in listdir(cache_path) if isfile(join(cache_path, f))] # get file names
     print(cache_path ,onlyfiles)
-    return {'files': onlyfiles}
+    return {'files': [get_metadata(o) for o in onlyfiles]}
 
 @app.route('/list', methods=['GET'])
 def list():

@@ -87,6 +87,7 @@ def download():
     filename_to_reqest = request.args.get("name")
     if not filename_to_reqest or filename_to_reqest == '':
         filename_to_reqest = 'sample.txt'
+    print(filename_to_reqest)
     return send_file(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", as_attachment=True)
 
 @app.route('/list_local', methods=['GET'])

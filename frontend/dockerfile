@@ -1,0 +1,7 @@
+FROM node:19.0.0-slim
+
+ADD . /frontend
+WORKDIR /frontend
+
+RUN npm install
+CMD npm run dev

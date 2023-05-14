@@ -1,6 +1,7 @@
 # ref https://www.codeunderscored.com/upload-download-files-flask/
 
 import os
+import boto3
 from os import listdir
 from os.path import isfile, join
 from flask import Flask, render_template, request, send_file
@@ -18,6 +19,7 @@ if not os.path.exists(upload_folder):
 
 # Configuring the upload folder
 app.config['UPLOAD_FOLDER'] = upload_folder
+app.config['BUCKET_NAME'] = "final-test-bucket-1"
 
 # configuring the allowed extensions
 allowed_extensions = ['jpg', 'png', 'pdf', 'txt', 'doc']
@@ -26,12 +28,10 @@ allowed_extensions = ['jpg', 'png', 'pdf', 'txt', 'doc']
 def check_file_extension(filename):
     return filename.split('.')[-1] in allowed_extensions
 
-
 @app.route('/')
 def upload_file():
     ''' simple html up & download page '''
     return render_template('upload.html')
-
 
 @app.route('/upload', methods=['POST'])
 def uploadfile():
@@ -46,6 +46,24 @@ def uploadfile():
             # this will secure the file
             f.save(os.path.join(
                 app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
+    return 'file uploaded successfully'  # Display thsi message after uploading
+
+@app.route('/upload_remote', methods=['POST'])
+def uploadfile_remote():
+    ''' allow multiple file uploads to server. Accept multipart/form-data POST request with name `files`. '''
+    # get the file from the files object
+    files = request.files.getlist('files')
+    print(files)
+    for f in files:
+        print(f.filename)
+        # Saving the file in the required destination
+        if check_file_extension(f.filename):
+            # this will secure the file
+            # f.save(os.path.join(
+            #     app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
+            s3 = boto3.client('s3')
+            data_path = os.path.join(app.config["UPLOAD_FOLDER"], f.filename)
+            s3.upload_fileobj(f, app.config["BUCKET_NAME"], data_path)
 
     return 'file uploaded successfully'  # Display thsi message after uploading
 
@@ -90,6 +108,24 @@ def download():
     print(filename_to_reqest)
     return send_file(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", as_attachment=True)
 
+@app.route('/download_remote', methods=['GET', 'POST'])
+def download_remote():
+    ''' allow user download a file specify with `name` url parameter. Return sample.txt if no parameter. '''
+    filename_to_reqest = request.args.get("name")
+    
+    # default behavior
+    if not filename_to_reqest or filename_to_reqest == '':
+        filename_to_reqest = 'sample.txt'
+    
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename_to_reqest)
+    # check if file exist in local path, if not, download from s3
+    if not os.path.exists(file_path):
+        s3 = boto3.client('s3')
+        s3.download_file(app.config['BUCKET_NAME'], file_path, file_path)
+    
+    return send_file(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", as_attachment=True)
+
+
 @app.route('/list_local', methods=['GET'])
 def list_local():
     ''' list all file metadata in local storage folder (cache of S3) '''
@@ -102,7 +138,21 @@ def list_local():
 @app.route('/list', methods=['GET'])
 def list():
     ''' list all file metadata in remote S3 database. '''
-    return {'files': []}
+    
+    files = []
+    client = boto3.client("s3")
+    response = client.list_objects_v2(
+        Bucket=app.config['BUCKET_NAME'],
+        Prefix=app.config["UPLOAD_FOLDER"]
+    )
+
+    for content in response.get('Contents', []):
+        filename = content['Key'].replace(app.config["UPLOAD_FOLDER"], "")
+        if filename == "": # directory self
+            continue
+        files.append(get_metadata(filename))
+    
+    return {'files': files}
 
 
 if __name__ == '__main__':

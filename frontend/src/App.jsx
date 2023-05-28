@@ -4,7 +4,7 @@ function App() {
   const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/list_local')
+    fetch('http://127.0.0.1:5000/list')
       .then(response => response.json())
       .then(data => setTableData(data['files']))
       .catch(error => console.error(error));

@@ -89,7 +89,7 @@ def get_metadata(filename: str):
         "year": year,
         "department": department,
         "title": title,
-        "fileurl": f"http://127.0.0.1:5000/download?name={filename}", # url 先這樣
+        "fileurl": f"http://127.0.0.1:5000/download?name={filename}", # url 先這樣，之後改成 load-balancer 的 DNS url。
     }
     return format
 
@@ -126,7 +126,7 @@ def download_remote():
     return send_file(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", as_attachment=True)
 
 
-@app.route('/list_local', methods=['GET'])
+@app.route('/list', methods=['GET'])
 def list_local():
     ''' list all file metadata in local storage folder (cache of S3) '''
     script_path = os.path.dirname(os.path.abspath(__file__))    # locate the server.py path
@@ -135,7 +135,7 @@ def list_local():
     print(cache_path ,onlyfiles)
     return {'files': [get_metadata(o) for o in onlyfiles]}
 
-@app.route('/list', methods=['GET'])
+@app.route('/list_remote', methods=['GET'])
 def list():
     ''' list all file metadata in remote S3 database. '''
     

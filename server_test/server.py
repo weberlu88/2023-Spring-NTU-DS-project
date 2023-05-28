@@ -4,7 +4,7 @@ import os
 import boto3
 from os import listdir
 from os.path import isfile, join
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, abort
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
@@ -25,8 +25,12 @@ app.config['BUCKET_NAME'] = "final-test-bucket-1"
 allowed_extensions = ['jpg', 'png', 'pdf', 'txt', 'doc']
 
 
-def check_file_extension(filename):
+def check_file_extension(filename : str) -> bool:
     return filename.split('.')[-1] in allowed_extensions
+
+def check_file_exist_local(filename: str) -> bool:
+    abs_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+    return os.path.exists(abs_path) and os.path.isfile(abs_path)
 
 @app.route('/')
 def upload_file():
@@ -89,14 +93,14 @@ def get_metadata(filename: str):
         "year": year,
         "department": department,
         "title": title,
-        "fileurl": f"http://127.0.0.1:5000/download?name={filename}", # url 先這樣，之後改成 load-balancer 的 DNS url。
+        "fileurl": f"http://127.0.0.1:5000/download?name={filename}", # url 先使用 127.0.0.1，上線後改成 load-balancer 的 DNS url。
     }
     return format
 
 # test script
 # res = get_metadata('sample.txt')
 # res = get_metadata('110-生科系-想了解生科系的一定要看.txt') 
-# # {'year': 110, 'department': '生科系', 'title': '想了解生科系的一定要看.txt', 'fileurl': '110-生科系-想了解生科系的一定要看.txt'}
+# # {'year': 110, 'department': '生科系', 'title': '想了解生科系的一定要看.txt', 'fileurl': 'http://127.0.0.1:5000/download?name=110-生科系-想了解生科系的一定要看.txt'}
 # print(res)
 
 @app.route('/download', methods=['GET', 'POST'])
@@ -125,9 +129,43 @@ def download_remote():
     
     return send_file(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", as_attachment=True)
 
+@app.route('/preview', methods=['GET', 'POST'])
+def preview(internal_call=False):
+    ''' allow user get a file content specify with `name` url parameter. Return the txt content. Return 404 if no parameter. '''
+    filename_to_reqest = request.args.get("name")
+    # print('preview:', filename_to_reqest)
+    if not filename_to_reqest or filename_to_reqest == '':
+        abort(404)
+    if not check_file_exist_local(filename_to_reqest):
+        if not internal_call:
+            abort(404)
+        else: 
+            return False
+    with open(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", encoding='utf-8') as f:
+        content = f.read()
+        return {'content': content}
+    
+# test case
+# http://127.0.0.1:5000/preview?name=109-大氣系-不要再問今天會不會下雨了.txt
+    
+@app.route('/preview_remote', methods=['GET', 'POST'])
+def preview_remote():
+    ''' Get txt content. Find locally first, search in S3 then. '''
+    filename_to_reqest = request.args.get("name")
+    # print('preview_remote:', filename_to_reqest)
+    if not filename_to_reqest or filename_to_reqest == '':
+        abort(404)
+    # local search
+    local_file = preview(internal_call=True)
+    # print(local_file)     # will get False or {content: xxx}
+    if local_file:
+        return local_file
+    
+    # todo ...
+    return {"message": "need to query remote S3"}
 
 @app.route('/list', methods=['GET'])
-def list_local():
+def list():
     ''' list all file metadata in local storage folder (cache of S3) '''
     script_path = os.path.dirname(os.path.abspath(__file__))    # locate the server.py path
     cache_path = join(script_path, app.config['UPLOAD_FOLDER']) # locate the configed upload folder
@@ -136,7 +174,7 @@ def list_local():
     return {'files': [get_metadata(o) for o in onlyfiles]}
 
 @app.route('/list_remote', methods=['GET'])
-def list():
+def list_remote():
     ''' list all file metadata in remote S3 database. '''
     
     files = []
@@ -156,4 +194,4 @@ def list():
 
 
 if __name__ == '__main__':
-    app.run()  # running the flask app
+    app.run(debug=True)  # running the flask app

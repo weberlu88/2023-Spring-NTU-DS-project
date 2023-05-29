@@ -1,0 +1,77 @@
+// 20230529222546
+// http://127.0.0.1:5000/list
+
+{
+  "files": [
+    {
+      "department": "國企系",
+      "filename": "107-國企系-邁向Elite之路管院生的面試手冊.doc",
+      "fileurl": "http://127.0.0.1:5000/download?name=107-國企系-邁向Elite之路管院生的面試手冊.doc",
+      "title": "邁向Elite之路管院生的面試手冊.doc",
+      "year": 107
+    },
+    {
+      "department": "數學系",
+      "filename": "108-數學系-數學不會就是不會.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=108-數學系-數學不會就是不會.txt",
+      "title": "數學不會就是不會.txt",
+      "year": 108
+    },
+    {
+      "department": "農藝系",
+      "filename": "108-農藝系-你知道烏龍茶和普洱茶的差異嗎.pdf",
+      "fileurl": "http://127.0.0.1:5000/download?name=108-農藝系-你知道烏龍茶和普洱茶的差異嗎.pdf",
+      "title": "你知道烏龍茶和普洱茶的差異嗎.pdf",
+      "year": 108
+    },
+    {
+      "department": "大氣系",
+      "filename": "109-大氣系-不要再問今天會不會下雨了.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=109-大氣系-不要再問今天會不會下雨了.txt",
+      "title": "不要再問今天會不會下雨了.txt",
+      "year": 109
+    },
+    {
+      "department": "法律系",
+      "filename": "109-法律系-智財 勞社 財稅 海海到底是什麼.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=109-法律系-智財 勞社 財稅 海海到底是什麼.txt",
+      "title": "智財 勞社 財稅 海海到底是什麼.txt",
+      "year": 109
+    },
+    {
+      "department": "資管系",
+      "filename": "109-資管系-資訊管理學系科系介紹.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=109-資管系-資訊管理學系科系介紹.txt",
+      "title": "資訊管理學系科系介紹.txt",
+      "year": 109
+    },
+    {
+      "department": "中文系",
+      "filename": "110-中文系-面試問答 不擅長講話能讀中文系嗎.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=110-中文系-面試問答 不擅長講話能讀中文系嗎.txt",
+      "title": "面試問答 不擅長講話能讀中文系嗎.txt",
+      "year": 110
+    },
+    {
+      "department": "公衛系",
+      "filename": "110-公衛系-面試絕對不會問參選台北市長的意願.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=110-公衛系-面試絕對不會問參選台北市長的意願.txt",
+      "title": "面試絕對不會問參選台北市長的意願.txt",
+      "year": 110
+    },
+    {
+      "department": "生科系",
+      "filename": "110-生科系-想了解生科系的一定要看.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=110-生科系-想了解生科系的一定要看.txt",
+      "title": "想了解生科系的一定要看.txt",
+      "year": 110
+    },
+    {
+      "department": null,
+      "filename": "sample.txt",
+      "fileurl": "http://127.0.0.1:5000/download?name=sample.txt",
+      "title": "sample.txt",
+      "year": 110
+    }
+  ]
+}

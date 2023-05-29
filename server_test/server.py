@@ -93,6 +93,7 @@ def get_metadata(filename: str):
         "year": year,
         "department": department,
         "title": title,
+        "filename": filename,
         "fileurl": f"http://127.0.0.1:5000/download?name={filename}", # url 先使用 127.0.0.1，上線後改成 load-balancer 的 DNS url。
     }
     return format

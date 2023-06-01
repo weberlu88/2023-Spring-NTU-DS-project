@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react'
 function App() {
   const [tableData, setTableData] = useState([]);
   const [previewText, setPreviewText] = useState('');
-
+  const base = "http://final-lb-2110684570.us-east-1.elb.amazonaws.com:5000"
   // Get table data at mount 
   useEffect(() => {
-    fetch('http://ec2-54-197-5-53.compute-1.amazonaws.com:5000/list_remote')
+    fetch(`${base}/list_remote`)
       .then(response => response.json())
       .then(data => setTableData(data['files']))
       .catch(error => console.error(error));
@@ -14,7 +14,7 @@ function App() {
 
   // Preview get api, triggered by onClick
   const handlePreviewClick = (filename) => {
-    fetch(`http://ec2-54-197-5-53.compute-1.amazonaws.com:5000/preview_remote?name=${filename}`)
+    fetch(`${base}/preview_remote?name=${filename}`)
       .then(response => response.json())
       .then(data => setPreviewText(data.content))
       .catch(error => console.error(error));

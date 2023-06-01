@@ -1,17 +1,12 @@
-FROM ubuntu:latest
+FROM python:3.10.7-slim
 
 ADD . /server_test
 WORKDIR /server_test
 
-RUN apt -y update
-RUN apt -y install curl
-RUN apt -y install unzip
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 
 ENV AWS_SECRET_ACCESS_KEY=Tnpx2m+oqTwgmoM7VZxALxEBqDsAqsSrcu8tvpWk
 ENV AWS_ACCESS_KEY_ID=ASIAQ5PT45PEPGKMFUT6
 ENV AWS_SESSION_TOKEN=FwoGZXIvYXdzEJP//////////wEaDAhwpw8SvQ1d7v9F5CLLAYD/cutvwJGGGtEaIwAop+afz0185HUDRHvSjZpbzAATrbII/P8V88WaEFY/2s4etMypNhJSQ5KG2QQyIJDpvGf5g36fK6pC2GBCh0gAK7FuWyIWIcpwF7/oIOYIEufqrAAfbz7MSZbeoY8TSPY/TROKUcPODFW58xD0oDvLYcpBgoCcN2o9fGrRpT0qhXK5WDoa4xXTB3JFBBJ+9V0w3CCD1xAhk7+Dgs279teO/+K0HaBdisp3YngMwwnf+iWU1Ty0dLFwG8QHePWDKN7T4aMGMi08ZPqz/6tOP7BGXvd6C4fNnJ+2w1SM5Q2TQVbdU59LCLP5SumRhm6rx1rDp4E=
 
-RUN apt -y install python3-pip python3 python3-setuptools -y
 RUN pip3 install -r requirements.txt
 CMD python3 server.py

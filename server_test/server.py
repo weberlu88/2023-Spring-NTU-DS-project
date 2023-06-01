@@ -27,7 +27,7 @@ MAX_FILES = 6
 allowed_extensions = ['jpg', 'png', 'pdf', 'txt', 'doc']
 
 
-def check_file_extension(filename : str) -> bool:
+def check_file_extension(filename: str) -> bool:
     return filename.split('.')[-1] in allowed_extensions
 
 def check_file_exist_local(filename: str) -> bool:
@@ -112,7 +112,7 @@ def get_metadata(filename: str):
         "department": department,
         "title": title,
         "filename": filename,
-        "fileurl": f"http://127.0.0.1:5000/download?name={filename}", # url 先使用 127.0.0.1，上線後改成 load-balancer 的 DNS url。
+        "fileurl": f"http://final-lb-2110684570.us-east-1.elb.amazonaws.com:5000/download?name={filename}", # url 先使用 127.0.0.1，上線後改成 load-balancer 的 DNS url。
     }
     return format
 
@@ -163,7 +163,7 @@ def preview(internal_call=False):
             abort(404)
         else: 
             return False
-    download_remote()
+    
     with open(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", encoding='utf-8') as f:
         content = f.read()
         return {'content': content}
@@ -186,7 +186,9 @@ def preview_remote():
     
     # todo ...
     download_remote()
-    return {"message": "need to query remote S3"}
+    with open(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", encoding='utf-8') as f:
+        content = f.read()
+        return {'content': content}
 
 @app.route('/list', methods=['GET'])
 def list():

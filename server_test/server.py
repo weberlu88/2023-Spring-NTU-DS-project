@@ -20,7 +20,7 @@ if not os.path.exists(upload_folder):
 
 # Configuring the upload folder
 app.config['UPLOAD_FOLDER'] = upload_folder
-app.config['BUCKET_NAME'] = "final-test-bucket-1"
+app.config['BUCKET_NAME'] = "final-test-bucket-2"
 MAX_FILES = 6
 
 # configuring the allowed extensions
@@ -136,6 +136,7 @@ def download():
 def download_remote():
     ''' allow user download a file specify with `name` url parameter. Return sample.txt if no parameter. '''
     filename_to_reqest = request.args.get("name")
+    print('download_remote:', filename_to_reqest)
     maintain_files()
     
     # default behavior
@@ -144,9 +145,9 @@ def download_remote():
     
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename_to_reqest)
     # check if file exist in local path, if not, download from s3
-    if not os.path.exists(file_path):
-        s3 = boto3.client('s3')
-        s3.download_file(app.config['BUCKET_NAME'], file_path, file_path)
+    # if not os.path.exists(file_path):
+    s3 = boto3.client('s3')
+    s3.download_file(app.config['BUCKET_NAME'], file_path, file_path)
     
     return send_file(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", as_attachment=True)
 
@@ -162,6 +163,7 @@ def preview(internal_call=False):
             abort(404)
         else: 
             return False
+    download_remote()
     with open(f"{app.config['UPLOAD_FOLDER']}/{filename_to_reqest}", encoding='utf-8') as f:
         content = f.read()
         return {'content': content}
@@ -183,6 +185,7 @@ def preview_remote():
         return local_file
     
     # todo ...
+    download_remote()
     return {"message": "need to query remote S3"}
 
 @app.route('/list', methods=['GET'])

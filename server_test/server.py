@@ -219,4 +219,4 @@ def list_remote():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)  # running the flask app
+    app.run(host="0.0.0.0", port=5000)  # running the flask app

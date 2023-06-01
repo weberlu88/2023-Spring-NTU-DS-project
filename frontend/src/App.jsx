@@ -6,7 +6,7 @@ function App() {
 
   // Get table data at mount 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/list')
+    fetch('http://ec2-54-197-5-53.compute-1.amazonaws.com:5000/list_remote')
       .then(response => response.json())
       .then(data => setTableData(data['files']))
       .catch(error => console.error(error));
@@ -14,7 +14,7 @@ function App() {
 
   // Preview get api, triggered by onClick
   const handlePreviewClick = (filename) => {
-    fetch(`http://127.0.0.1:5000/preview?name=${filename}`)
+    fetch(`http://ec2-54-197-5-53.compute-1.amazonaws.com:5000/preview_remote?name=${filename}`)
       .then(response => response.json())
       .then(data => setPreviewText(data.content))
       .catch(error => console.error(error));

@@ -1,6 +1,7 @@
 # ref https://www.codeunderscored.com/upload-download-files-flask/
 
 import os
+import glob
 import boto3
 from os import listdir
 from os.path import isfile, join
@@ -20,6 +21,7 @@ if not os.path.exists(upload_folder):
 # Configuring the upload folder
 app.config['UPLOAD_FOLDER'] = upload_folder
 app.config['BUCKET_NAME'] = "final-test-bucket-1"
+MAX_FILES = 6
 
 # configuring the allowed extensions
 allowed_extensions = ['jpg', 'png', 'pdf', 'txt', 'doc']
@@ -31,6 +33,22 @@ def check_file_extension(filename : str) -> bool:
 def check_file_exist_local(filename: str) -> bool:
     abs_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
     return os.path.exists(abs_path) and os.path.isfile(abs_path)
+
+def maintain_files(file_folder=app.config['UPLOAD_FOLDER'], max_files=MAX_FILES):
+    ''' max_files: the maximum number of files to keep. 
+    It retrieves all the files in the folder, sorts them by their last modified time and deletes the excess files if the count exceeds the maximum.'''
+    # Get a list of all files in the folder
+    files = glob.glob(os.path.join(file_folder, '*'))
+    files = [f for f in files if 'sample.txt' not in f]
+    
+    # Sort the files by their last modified time in descending order
+    files.sort(key=os.path.getmtime, reverse=True)
+    
+    # Delete excess files if the count exceeds the maximum
+    max_files = max_files - 1
+    if len(files) > max_files:
+        for file_path in files[max_files:]:
+            os.remove(file_path)
 
 @app.route('/')
 def upload_file():
@@ -107,6 +125,7 @@ def get_metadata(filename: str):
 @app.route('/download', methods=['GET', 'POST'])
 def download():
     ''' allow user download a file specify with `name` url parameter. Return sample.txt if no parameter. '''
+    maintain_files()
     filename_to_reqest = request.args.get("name")
     if not filename_to_reqest or filename_to_reqest == '':
         filename_to_reqest = 'sample.txt'
@@ -117,6 +136,7 @@ def download():
 def download_remote():
     ''' allow user download a file specify with `name` url parameter. Return sample.txt if no parameter. '''
     filename_to_reqest = request.args.get("name")
+    maintain_files()
     
     # default behavior
     if not filename_to_reqest or filename_to_reqest == '':
@@ -168,6 +188,7 @@ def preview_remote():
 @app.route('/list', methods=['GET'])
 def list():
     ''' list all file metadata in local storage folder (cache of S3) '''
+    maintain_files()
     script_path = os.path.dirname(os.path.abspath(__file__))    # locate the server.py path
     cache_path = join(script_path, app.config['UPLOAD_FOLDER']) # locate the configed upload folder
     onlyfiles = [f for f in listdir(cache_path) if isfile(join(cache_path, f))] # get file names

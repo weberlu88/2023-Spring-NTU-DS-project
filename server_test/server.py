@@ -125,7 +125,7 @@ def get_metadata(filename: str):
 @app.route('/download', methods=['GET', 'POST'])
 def download():
     ''' allow user download a file specify with `name` url parameter. Return sample.txt if no parameter. '''
-    maintain_files()
+    # maintain_files()
     filename_to_reqest = request.args.get("name")
     if not filename_to_reqest or filename_to_reqest == '':
         filename_to_reqest = 'sample.txt'
@@ -137,7 +137,7 @@ def download_remote():
     ''' allow user download a file specify with `name` url parameter. Return sample.txt if no parameter. '''
     filename_to_reqest = request.args.get("name")
     print('download_remote:', filename_to_reqest)
-    maintain_files()
+    # maintain_files()
     
     # default behavior
     if not filename_to_reqest or filename_to_reqest == '':
@@ -193,7 +193,7 @@ def preview_remote():
 @app.route('/list', methods=['GET'])
 def list():
     ''' list all file metadata in local storage folder (cache of S3) '''
-    maintain_files()
+    # maintain_files()
     script_path = os.path.dirname(os.path.abspath(__file__))    # locate the server.py path
     cache_path = join(script_path, app.config['UPLOAD_FOLDER']) # locate the configed upload folder
     onlyfiles = [f for f in listdir(cache_path) if isfile(join(cache_path, f))] # get file names

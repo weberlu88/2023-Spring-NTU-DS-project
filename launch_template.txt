@@ -1,0 +1,38 @@
+Content-Type: multipart/mixed; boundary="//"
+MIME-Version: 1.0
+
+--//
+Content-Type: text/cloud-config; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cloud-config.txt"
+
+#cloud-config
+cloud_final_modules:
+- [scripts-user, always]
+
+--//
+Content-Type: text/x-shellscript; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="userdata.txt"
+
+#!/bin/bash
+sudo yum install docker -y
+sudo yum install amazon-cloudwatch-agent -y
+sudo systemctl start docker
+
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+export AWS_SESSION_TOKEN=
+
+sudo aws s3 cp s3://2023ds-config/config.json /home/ec2-user/config.json
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/home/ec2-user/config.json
+
+sudo docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 063325400008.dkr.ecr.us-east-1.amazonaws.com
+
+sudo docker pull 063325400008.dkr.ecr.us-east-1.amazonaws.com/backend:latest
+
+sudo docker run -d -p 5000:5000 -t 063325400008.dkr.ecr.us-east-1.amazonaws.com/backend:latest
+
+--//
